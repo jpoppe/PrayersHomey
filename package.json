@@ -1,10 +1,11 @@
 {
   "name": "prayers-homey",
-  "version": "0.0.0",
-  "description": "PrayersHomey",
-  "main": "app.js",
+  "version": "0.0.1",
+  "description": "Homey App to track prayers events based on your location",
+  "main": "lib/index",
+  "types":"lib/index",
   "author": {
-    "name": ""
+    "name": "Omar B."
   },
   "dependencies": {
     "dotenv": "^6.2.0",
