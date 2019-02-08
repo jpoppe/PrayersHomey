@@ -3,13 +3,13 @@
   "version": "0.0.1",
   "description": "Homey App to track prayers events based on your location",
   "main": "lib/index",
-  "types":"lib/index",
+  "types": "lib/index",
   "author": {
     "name": "Omar B."
   },
   "dependencies": {
-    "dotenv": "^6.2.0",
-    "homey-lib": "^2.3.20"
+    "athom-cli": "^2.1.69",
+    "dotenv": "^6.2.0"
   },
   "devDependencies": {
     "@types/dotenv": "^6.1.0",
