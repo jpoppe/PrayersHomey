@@ -9,7 +9,7 @@
     },
     "description": {
         "en": "Trigger muslim prayers timing events based on your locations"
-    },    
+    },
     "category": "tools",
     "tags": {
         "en": [
@@ -36,20 +36,121 @@
         "url": "https://github.com/DPANET/PrayersHomey/issues"
     },
     "flow": {
-        "actions": [
+        "trigger": [
             {
-                "id": "toggle_blind_action",
+                "id": "prayer_trigger_specific",
                 "title": {
-                    "en": "Toggle curtain on or off "
+                    "en": "Trigger to specific prayer time"
                 },
+                "tokens": [
+                    {
+                        "name": "prayer_name",
+                        "type": "string",
+                        "title": {
+                            "en": "Prayer Name"
+                        }
+                    },
+                    {
+                        "name": "prayer_time",
+                        "type": "string",
+                        "title": {
+                            "en": "Prayer Time"
+                        }
+                    }
+                ],
                 "args": [
                     {
-                        "type": "device",
-                        "name": "my_device",
-                        "filter": "driver_id=axis"
+                        "type": "dropdown",
+                        "name": "prayers_dropdown",
+                        "values": [
+                            {
+                                "id": "FAJR",
+                                "label": {
+                                    "en": "Fajr"
+                                }
+                            },
+                            {
+                                "id": "DHUR",
+                                "label": {
+                                    "en": "Dhur"
+                                }
+                            },
+                            {
+                                "id": "ASR",
+                                "label": {
+                                    "en": "Asr"
+                                }
+                            },
+                            {
+                                "id": "MAGHRIB",
+                                "label": {
+                                    "en": "Maghrib"
+                                }
+                            },
+                            {
+                                "id": "Isha",
+                                "label": {
+                                    "en": "Isha"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "prayer_trigger_all",
+                "title": {
+                    "en": "Trigger to all prayers event"
+                },
+                "tokens": [
+                    {
+                        "name": "prayer_name",
+                        "type": "string",
+                        "title": {
+                            "en": "Prayer Name"
+                        }
+                    },
+                    {
+                        "name": "prayer_time",
+                        "type": "string",
+                        "title": {
+                            "en": "Prayer Time"
+                        }
                     }
                 ]
             }
+
+        ],
+        "action": [
+            {
+                "id": "athan_action_partial",
+                "title": {
+                    "en": "Play fir part of athan sound"
+                },
+                "args": [
+                    {
+                        "type": "dropdown",
+                        "name": "athan_dropdown",
+                        "values": [
+                            {
+                                "id": "PARTIAL",
+                                "label": {
+                                    "en": "Play first part of the athan"
+                                }
+                            },
+                            {
+                                "id": "FULL",
+                                "label": {
+                                    "en": "Play athan fully "
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+
         ]
+
+
     }
 }

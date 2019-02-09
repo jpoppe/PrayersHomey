@@ -74,15 +74,15 @@
   }
   export class FlowArgument
   {
-    public registerAutocompleteListener(query:string,args:object,callback:(err:Error,result:Array<object>)=>void):FlowArgument;
+    public registerAutocompleteListener(fn:(query:string,args:object,callback:(err:Error,result:Array<object>)=>void)=>void):FlowArgument;
   }
   export class FlowCard<T> extends EventEmitter
   {
     constructor(id:string);
     getArgument():FlowArgument;
     getArgumentValues(callback:(err:Error,value:Array<object>)=>void):Promise<T>;
-    register():FlowCard<T>;
-    registerRunListener(fn:(args:object,state:object,callback:genericCallbackFunction)=>void):FlowCard<T>;
+    register():T;
+    registerRunListener(fn:(args:object,state:object,callback:genericCallbackFunction)=>void):T;
     unregister():void;
   }
   export class FlowCardCondition<T> extends FlowCard<T>
@@ -95,24 +95,24 @@
     trigger(tokens:object,state:object,callback?:genericCallbackFunction):Promise<T>;
 
   }
+  export class FlowCardAction<T> extends FlowCard<T>
+  {
+    constructor(id:string);
+
+  }
   export class FlowCardTriggerDevice<T> extends FlowCard<T>
   {
     constructor(id:string);
     trigger(device:Device<T>,tokens:object,state:object,callback:genericCallbackFunction):Promise<T>;
 
   }
-  export enum FlowTokenType
-  {
-    STRING="string",
-    NUMBER ="number",
-    BOOLEAN= "boolean",
-    IMAGE = "image"
-  }
+
   export interface IFlowToken 
   {
-    type: FlowTokenType,
+    type: string,
     title:string
   }
+  export type FlowTokenType= string|number|boolean|Image;
   export class FlowToken<T>
   {
     constructor(id:string,opts:IFlowToken);
@@ -162,17 +162,13 @@
     getInstalled(callback?:(err:Error,installed:boolean)=>void):Promise<T>;
     getVersion(callback?:(err:Error,version:string)=>void):Promise<T>;
   }
-  export enum GeoLocationMode
-  {
-    AUTO= "auto",
-    MANUAL= "manual"
-  }
+
   export class ManagerGeolocation extends EventEmitter
   {
     static getAccuracy():number;
     static getLatitude():number;
     static getLongitude():number;
-    static getMode():GeoLocationMode;
+    static getMode():string;
   }
   export class ManagerClock extends EventEmitter
   {
