@@ -139,12 +139,12 @@
     updateState(state:string,callback?:genericCallbackFunction):Promise<T>;
   }
   export type AudioType = Buffer|string
-  export class ManagerAudio<T>
+  export class ManagerAudio
   {
-    playMp3(sampleId:string,sample?: AudioType,callback?:genericCallbackFunction):Promise<T>;
-    playWav(sampleId:string,sample?: AudioType,callback?:genericCallbackFunction):Promise<T>;
-    removeMp3(sampleId:string,callback?:genericCallbackFunction):void;
-    removeWav(sampleId:string,callback?:genericCallbackFunction):void;
+    static playMp3<T>(sampleId:string,sample?: AudioType,callback?:genericCallbackFunction):Promise<T>;
+    static playWav<T>(sampleId:string,sample?: AudioType,callback?:genericCallbackFunction):Promise<T>;
+    static removeMp3<T>(sampleId:string,callback?:genericCallbackFunction):void;
+    static removeWav<T>(sampleId:string,callback?:genericCallbackFunction):void;
   }
   export class Api<T>
   {
@@ -169,27 +169,27 @@
   }
   export class ManagerGeolocation extends EventEmitter
   {
-    getAccuracy():number;
-    getLatitude():number;
-    getLongitude():number;
-    getMode():GeoLocationMode;
+    static getAccuracy():number;
+    static getLatitude():number;
+    static getLongitude():number;
+    static getMode():GeoLocationMode;
   }
   export class ManagerClock extends EventEmitter
   {
-    getTimezone():string;
+   static getTimezone():string;
   }
   export class CronTask extends EventEmitter
   {
 
   }
   export type CronWhenType = string|Date;
-  export class ManagerCron<T>
+  export class ManagerCron
   {
-    getTask(name:string,callback?:(err:Error,task:CronTask)=>void):Promise<T>;
-    getTasks(callback?:(err:Error,logs:Array<CronTask>)=>void):Promise<T>;
-    registerTask(name:string,when:CronWhenType,data:object,callback?:(err:Error,task:CronTask)=>void):Promise<T>;
-    unregisterAllTasks(callback?:(err:Error)=>void):Promise<T>;
-    unregisterTask(name:string,callback?:(err:Error)=>void):Promise<T>;
+    static getTask<T>(name:string,callback?:(err:Error,task:CronTask)=>void):Promise<T>;
+    static getTasks<T>(callback?:(err:Error,logs:Array<CronTask>)=>void):Promise<T>;
+    static registerTask<T>(name:string,when:CronWhenType,data:object,callback?:(err:Error,task:CronTask)=>void):Promise<T>;
+    static unregisterAllTasks<T>(callback?:(err:Error)=>void):Promise<T>;
+    static unregisterTask<T>(name:string,callback?:(err:Error)=>void):Promise<T>;
   }
 
 }
