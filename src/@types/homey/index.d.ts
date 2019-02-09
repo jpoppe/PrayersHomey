@@ -1,10 +1,11 @@
 
-
- declare module 'homey'
+ declare module 'homey' 
 {
+ 
   import { EventEmitter } from "events";
-
-  import * as Homey from "homey";
+  export type i18n = string|object;
+ // import * as Homey from 'homey';
+  export function __(key:i18n):void
 
   export interface ICapabilities
   {
@@ -21,7 +22,7 @@
     constructor(uri:string);
     protected onInit():void;
   }
-  type genericCallbackFunction= (err?:Error,store?:object)=>void;
+  export type genericCallbackFunction= (err?:Error,store?:object)=>void;
 
   export class Device<T>
   {
@@ -119,5 +120,77 @@
     setValue(value:FlowTokenType,callback?:genericCallbackFunction):Promise<T>;
     unregister(callback?:genericCallbackFunction):Promise<T>;
   }
+  export interface INotification
+  {
+    excerpt:string
+  }
+  export class Notification<T>
+  {
+    constructor(options:INotification);
+    register(callback?:genericCallbackFunction):Promise<T>;
+  }
+  export class Speaker<T>
+  {
+    constructor(isActive:boolean,isRegistered:boolean);
+    register(speakerState:string,callback?:genericCallbackFunction ):Promise<T>;
+    sendCommand(command:string,args:Array<T>,callback?:genericCallbackFunction):Promise<T>;
+    setInactive(message:string,callback?:genericCallbackFunction):Promise<T>;
+    unregister(callback?:genericCallbackFunction):Promise<T>;
+    updateState(state:string,callback?:genericCallbackFunction):Promise<T>;
+  }
+  export type AudioType = Buffer|string
+  export class ManagerAudio<T>
+  {
+    playMp3(sampleId:string,sample?: AudioType,callback?:genericCallbackFunction):Promise<T>;
+    playWav(sampleId:string,sample?: AudioType,callback?:genericCallbackFunction):Promise<T>;
+    removeMp3(sampleId:string,callback?:genericCallbackFunction):void;
+    removeWav(sampleId:string,callback?:genericCallbackFunction):void;
+  }
+  export class Api<T>
+  {
+    constructor(uri:string);
+    delete(path:string,callback?:genericCallbackFunction):Promise<T>;
+    get(path:string,callback?:genericCallbackFunction):Promise<T>;
+    post(path:string,body:any,callback?:genericCallbackFunction):Promise<T>;
+    put(path:string,body:any,callback?:genericCallbackFunction):Promise<T>;
+    register():Api<T>;
+    unregister():void;
+  }
+  export class ApiApp<T> extends Api<T>
+  {
+    constructor(appId:string);
+    getInstalled(callback?:(err:Error,installed:boolean)=>void):Promise<T>;
+    getVersion(callback?:(err:Error,version:string)=>void):Promise<T>;
+  }
+  export enum GeoLocationMode
+  {
+    AUTO= "auto",
+    MANUAL= "manual"
+  }
+  export class ManagerGeolocation extends EventEmitter
+  {
+    getAccuracy():number;
+    getLatitude():number;
+    getLongitude():number;
+    getMode():GeoLocationMode;
+  }
+  export class ManagerClock extends EventEmitter
+  {
+    getTimezone():string;
+  }
+  export class CronTask extends EventEmitter
+  {
+
+  }
+  export type CronWhenType = string|Date;
+  export class ManagerCron<T>
+  {
+    getTask(name:string,callback?:(err:Error,task:CronTask)=>void):Promise<T>;
+    getTasks(callback?:(err:Error,logs:Array<CronTask>)=>void):Promise<T>;
+    registerTask(name:string,when:CronWhenType,data:object,callback?:(err:Error,task:CronTask)=>void):Promise<T>;
+    unregisterAllTasks(callback?:(err:Error)=>void):Promise<T>;
+    unregisterTask(name:string,callback?:(err:Error)=>void):Promise<T>;
+  }
+
 }
 
