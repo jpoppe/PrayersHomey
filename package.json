@@ -2,18 +2,21 @@
   "name": "prayers-homey",
   "version": "0.0.1",
   "description": "Homey App to track prayers events based on your location",
-  "main": "lib/index",
-  "types": "lib/index",
+  "main": "app.js",
+  "types": "index.d.ts",
   "author": {
     "name": "Omar B."
   },
   "dependencies": {
+    "@dpanet/prayers-lib": "^1.0.11",
     "athom-cli": "^2.1.69",
-    "dotenv": "^6.2.0"
+    "dotenv": "^6.2.0",
+    "lowdb": "^1.0.0"
   },
   "devDependencies": {
     "@types/dotenv": "^6.1.0",
+    "@types/lowdb": "^1.0.6",
     "ts-node": "^8.0.2",
-    "typescript": "^3.3.1"
+    "typescript": "^3.3.3"
   }
 }

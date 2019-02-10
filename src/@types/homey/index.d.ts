@@ -3,7 +3,7 @@
 {
  
   import { EventEmitter } from "events";
-  export type i18n = string|object;
+  export type i18n = string|any;
  // import * as Homey from 'homey';
   export function __(key:i18n):void
 
@@ -22,7 +22,7 @@
     constructor(uri:string);
     protected onInit():void;
   }
-  export type genericCallbackFunction= (err?:Error,store?:object)=>void;
+  export type genericCallbackFunction= (err?:Error,store?:any)=>void;
 
   export class Device<T>
   {
@@ -30,13 +30,13 @@
     public getCapabilities():Array<ICapabilities>;
     public getCapabilityValue(capabilityId:string):ICapabilities;
     public getClass():string;
-    public getData():object;
+    public getData():any;
     public getDriver():Driver<T>;
     public getName():string;
-    public getSetting(key:string):object;
-    public getSettings():object;
-    public getState():object;
-    public getStore():object;
+    public getSetting(key:string):any;
+    public getSettings():any;
+    public getState():any;
+    public getStore():any;
     public getStoreKeys():Array<string>;
     public getStoreValue(key:string):any;
     public hasCapability(capabilityId:string):boolean;
@@ -44,28 +44,28 @@
     public onDeleted():void;
     public onInit():void;
     public onRenamed(name:string):void;
-    public onSettings(oldSettings:object,newSettings:object,changedKeys:Array<object>,callback:genericCallbackFunction):void;
+    public onSettings(oldSettings:any,newSettings:any,changedKeys:Array<any>,callback:genericCallbackFunction):void;
     public ready(callback:()=>void):void;
-    public registerCapabilityListener(capabilityId:string,fn:(value:any,opt:object,callback:genericCallbackFunction)=>void):void;
-    public registerMultipleCapabilityListener(capabilityIds:Array<string>,fn:(valueObj:any,optsObj:object,callback:genericCallbackFunction)=>void,timeout:number):void;
+    public registerCapabilityListener(capabilityId:string,fn:(value:any,opt:any,callback:genericCallbackFunction)=>void):void;
+    public registerMultipleCapabilityListener(capabilityIds:Array<string>,fn:(valueObj:any,optsObj:any,callback:genericCallbackFunction)=>void,timeout:number):void;
     public setAlbumArtImage(image:Image,callback?:(err:Error)=>void):Promise<T>;
     public setAvailable(callback?:genericCallbackFunction):Promise<T>;
     public setCapabilityValue(capabilityId:string,value:any,callback?:genericCallbackFunction):Promise<T>;
-    public setSettings(settings:object,callback?:genericCallbackFunction):Promise<T>;
+    public setSettings(settings:any,callback?:genericCallbackFunction):Promise<T>;
     public setStoreValue(key:string,value:any,callback?:genericCallbackFunction):Promise<T>;
     public setUnavailable(message:string,callback?:genericCallbackFunction):Promise<T>;
     public setWarning(message:string,callback?:genericCallbackFunction):Promise<T>;
-    public triggerCapabilityListener(capabilityId:string,value:any,opts:object,callback?:genericCallbackFunction):Promise<T>;
+    public triggerCapabilityListener(capabilityId:string,value:any,opts:any,callback?:genericCallbackFunction):Promise<T>;
     public unsetStoreValue(key:string,callback?:genericCallbackFunction):Promise<T>;
     public usetWarning(callback?:genericCallbackFunction):Promise<T>;
   }
   export class Driver<T>{
-    public getDevice(deviceData:object):Device<T>;
+    public getDevice(deviceData:any):Device<T>;
     public getDevices():Array<Device<T>>;
     public onInit():void;
     public onMapDeviceClass(device:Device<T>):Device<T>;
     public onPair(socket:EventEmitter):void;
-    public onPairListDevices(data:object,callback:(err:Error,result:Array<Device<T>>)=>void):void;
+    public onPairListDevices(data:any,callback:(err:Error,result:Array<Device<T>>)=>void):void;
     public ready(callback:()=>void):void;
   }
   export class Image
@@ -74,15 +74,15 @@
   }
   export class FlowArgument
   {
-    public registerAutocompleteListener(fn:(query:string,args:object,callback:(err:Error,result:Array<object>)=>void)=>void):FlowArgument;
+    public registerAutocompleteListener(fn:(query:string,args:any,callback:(err:Error,result:Array<any>)=>void)=>void):FlowArgument;
   }
   export class FlowCard<T> extends EventEmitter
   {
     constructor(id:string);
     getArgument():FlowArgument;
-    getArgumentValues(callback:(err:Error,value:Array<object>)=>void):Promise<T>;
+    getArgumentValues(callback:(err:Error,value:Array<any>)=>void):Promise<T>;
     register():T;
-    registerRunListener(fn:(args:object,state:object,callback:genericCallbackFunction)=>void):T;
+    registerRunListener(fn:(args:any,state:any,callback:genericCallbackFunction)=>void):T;
     unregister():void;
   }
   export class FlowCardCondition<T> extends FlowCard<T>
@@ -92,7 +92,7 @@
   export class FlowCardTrigger<T> extends FlowCard <T>
   {
     constructor(id:string);
-    trigger(tokens:object,state:object,callback?:genericCallbackFunction):Promise<T>;
+    trigger(tokens:any,state:any,callback?:genericCallbackFunction):Promise<T>;
 
   }
   export class FlowCardAction<T> extends FlowCard<T>
@@ -103,7 +103,7 @@
   export class FlowCardTriggerDevice<T> extends FlowCard<T>
   {
     constructor(id:string);
-    trigger(device:Device<T>,tokens:object,state:object,callback:genericCallbackFunction):Promise<T>;
+    trigger(device:Device<T>,tokens:any,state:any,callback:genericCallbackFunction):Promise<T>;
 
   }
 
@@ -183,7 +183,7 @@
   {
     static getTask<T>(name:string,callback?:(err:Error,task:CronTask)=>void):Promise<T>;
     static getTasks<T>(callback?:(err:Error,logs:Array<CronTask>)=>void):Promise<T>;
-    static registerTask<T>(name:string,when:CronWhenType,data:object,callback?:(err:Error,task:CronTask)=>void):Promise<T>;
+    static registerTask<T>(name:string,when:CronWhenType,data:any,callback?:(err:Error,task:CronTask)=>void):Promise<T>;
     static unregisterAllTasks<T>(callback?:(err:Error)=>void):Promise<T>;
     static unregisterTask<T>(name:string,callback?:(err:Error)=>void):Promise<T>;
   }
