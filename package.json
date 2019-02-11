@@ -8,7 +8,7 @@
     "name": "Omar B."
   },
   "dependencies": {
-    "@dpanet/prayers-lib": "^1.0.20",
+    "@dpanet/prayers-lib": "^1.0.22",
     "athom-cli": "^2.1.69",
     "dotenv": "^6.2.0",
     "lowdb": "^1.0.0"
