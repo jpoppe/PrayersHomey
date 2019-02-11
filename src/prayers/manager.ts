@@ -22,16 +22,22 @@ export class PrayersAppManager
    // private  _prayerEvents:prayerlib.
     static async initApp():Promise<void>
     {
+        try{
         let manager:PrayersAppManager = PrayersAppManager.prayerAppManger;
-     //  manager._prayerConfig = await new prayerlib.Configurator().getPrayerConfig();
+         manager._prayerConfig = await new prayerlib.Configurator().getPrayerConfig();
         manager._prayerManager = await prayerlib.PrayerTimeBuilder
-        .createPrayerTimeBuilder(null, null)
+        .createPrayerTimeBuilder(null, manager._prayerConfig)
         .setPrayerMethod(prayerlib.Methods.Mecca)
         .setPrayerPeriod(new Date('2019-02-10'), new Date('2019-02-28'))
         .setLocationByCoordinates(24.4942437, 54.4068603)
         .createPrayerTimeManager();
         
         console.log(manager._prayerManager.getUpcomingPrayer());   
+        }
+        catch(err)
+        {
+            console.log(err);
+        }
     }
 
 
