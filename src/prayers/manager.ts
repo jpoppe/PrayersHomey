@@ -23,9 +23,9 @@ export class PrayersAppManager
     static async initApp():Promise<void>
     {
         let manager:PrayersAppManager = PrayersAppManager.prayerAppManger;
-        manager._prayerConfig = await new prayerlib.Configurator().getPrayerConfig();
+     //  manager._prayerConfig = await new prayerlib.Configurator().getPrayerConfig();
         manager._prayerManager = await prayerlib.PrayerTimeBuilder
-        .createPrayerTimeBuilder(null,manager._prayerConfig)
+        .createPrayerTimeBuilder(null, null)
         .setPrayerMethod(prayerlib.Methods.Mecca)
         .setPrayerPeriod(new Date('2019-02-10'), new Date('2019-02-28'))
         .setLocationByCoordinates(24.4942437, 54.4068603)
