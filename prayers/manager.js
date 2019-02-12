@@ -10,6 +10,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv = require("dotenv");
 dotenv.config();
 const prayerlib = __importStar(require("@dpanet/prayers-lib"));
+const Homey = require("homey");
 const util_1 = require("util");
 class PrayersAppManager {
     static get prayerAppManger() {
@@ -31,8 +32,7 @@ class PrayersAppManager {
             manager._prayerManager = await prayerlib.PrayerTimeBuilder
                 .createPrayerTimeBuilder(null, manager._prayerConfig)
                 .setPrayerMethod(prayerlib.Methods.Mecca)
-                .setPrayerPeriod(new Date('2019-02-10'), new Date('2019-02-28'))
-                .setLocationByCoordinates(24.4942437, 54.4068603)
+                .setLocationByCoordinates(Homey.ManagerGeolocation.getLatitude(), Homey.ManagerGeolocation.getLongitude())
                 .createPrayerTimeManager();
             console.log(manager._prayerManager.getUpcomingPrayer());
         }
