@@ -8,13 +8,14 @@
     "name": "Omar B."
   },
   "dependencies": {
-    "@dpanet/prayers-lib": "^1.0.27",
+    "@dpanet/prayers-lib": "^1.0.29",
     "athom-cli": "^2.1.69",
     "dotenv": "^6.2.0",
     "lowdb": "^1.0.0"
   },
   "devDependencies": {
     "@types/dotenv": "^6.1.0",
-    "@types/lowdb": "^1.0.6"
+    "@types/lowdb": "^1.0.6",
+    "typescript": "^3.3.3"
   }
 }
