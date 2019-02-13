@@ -122,9 +122,9 @@
         ],
         "actions": [
             {
-                "id": "athan_action_partial",
+                "id": "athan_action",
                 "title": {
-                    "en": "Play fir part of athan sound"
+                    "en": "Play athan sound based on action"
                 },
                 "args": [
                     {
@@ -132,13 +132,13 @@
                         "name": "athan_dropdown",
                         "values": [
                             {
-                                "id": "PARTIAL",
+                                "id": "athan_short",
                                 "label": {
                                     "en": "Play first part of the athan"
                                 }
                             },
                             {
-                                "id": "FULL",
+                                "id": "athan_long",
                                 "label": {
                                     "en": "Play athan fully "
                                 }

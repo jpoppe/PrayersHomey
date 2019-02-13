@@ -13,6 +13,8 @@ const prayerlib = __importStar(require("@dpanet/prayers-lib"));
 const events = __importStar(require("./events"));
 const Homey = require("homey");
 const util_1 = require("util");
+const to = require('await-to-js').default;
+const athanTypes = { athan_short: "assets/prayers/prayer.mp3" };
 class PrayersAppManager {
     get homeyPrayersTrigger() {
         return this._homeyPrayersTrigger;
@@ -42,10 +44,14 @@ class PrayersAppManager {
                 .createPrayerTimeManager();
             exports.appmanager.initPrayersSchedules();
             exports.appmanager.initEvents();
+            //  appmanager.initAthan();
             console.log(exports.appmanager._prayerManager.getUpcomingPrayer());
             setTimeout(() => {
                 exports.appmanager.homeyPrayersTrigger.trigger({ prayer_name: "Fajir", prayer_time: "Isha" }, null)
-                    .then((result) => console.log('triggered the event' + " " + result));
+                    .then((result) => {
+                    console.log('triggered the event' + " ");
+                })
+                    .catch((err) => console.log(err));
             }, 60000);
         }
         catch (err) {
@@ -60,7 +66,29 @@ class PrayersAppManager {
     }
     initEvents() {
         this._homeyPrayersTrigger = new Homey.FlowCardTrigger('prayer_trigger_all');
+        this._homeyPrayersAthanAction = new Homey.FlowCardAction('athan_action');
         this._homeyPrayersTrigger.register();
+        this._homeyPrayersAthanAction
+            .register()
+            .registerRunListener((args, state) => {
+            return this.playAthan(args.athan_dropdown, athanTypes[args.athan_dropdown]);
+        });
+    }
+    async playAthan(sampleId, fileName) {
+        console.log(sampleId);
+        let err, result;
+        [err, result] = await to(Homey.ManagerAudio.playMp3(sampleId, fileName));
+        if (!util_1.isNullOrUndefined(err)) {
+            console.log(err);
+            return Promise.resolve(false);
+        }
+        else
+            return Promise.resolve(true);
+    }
+    initAthan() {
+        Homey.ManagerAudio.playMp3('athan_short', 'assets/prayers/prayer.mp3')
+            .then((result) => console.log('audio played'))
+            .catch((err) => console.log(err));
     }
 }
 exports.PrayersAppManager = PrayersAppManager;
