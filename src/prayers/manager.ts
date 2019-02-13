@@ -1,9 +1,11 @@
 import dotenv = require('dotenv');
 dotenv.config();
+import Debug = require('debug');
+const debug = Debug("1");
 import * as prayerlib from '@dpanet/prayers-lib';
 import * as events from './events';
 import Homey = require('homey');
-import { isNullOrUndefined, debug } from 'util';
+import { isNullOrUndefined } from 'util';
 import { promises } from 'fs';
 import { homedir } from 'os';
 const to = require('await-to-js').default;
@@ -36,7 +38,13 @@ export class PrayersAppManager
     public static set prayerAppManger(value: PrayersAppManager) {
         PrayersAppManager._prayerAppManger = value;
     }
-    private  _prayerManager:prayerlib.IPrayerManager;
+    private _prayerManager: prayerlib.IPrayerManager;
+    public get prayerManager(): prayerlib.IPrayerManager {
+        return this._prayerManager;
+    }
+    public set prayerManager(value: prayerlib.IPrayerManager) {
+        this._prayerManager = value;
+    }
     private  _prayerConfig:prayerlib.IPrayersConfig;
    // private  _prayerEvents:prayerlib.
     static async initApp():Promise<void>
@@ -78,6 +86,19 @@ export class PrayersAppManager
         this._prayerEventProvider.startPrayerSchedule();
 
     }
+    public reschedulePrayers()
+    {    
+        if(!isNullOrUndefined(this._prayerEventProvider))
+        {
+        this._prayerEventProvider.stopPrayerSchedule();    
+        this._prayerEventProvider = new prayerlib.PrayersEventProvider(appmanager._prayerManager);
+        this._prayerEventListener  = new events.PrayersEventListener();
+        this._prayerEventProvider.registerListener(this._prayerEventListener);
+        this._prayerEventProvider.startPrayerSchedule();
+        }
+
+    }
+
     public initEvents():void
     {
         this._homeyPrayersTrigger = new Homey.FlowCardTrigger('prayer_trigger_all');
