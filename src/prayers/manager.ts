@@ -91,7 +91,9 @@ export class PrayersAppManager {
             .register()
             .registerRunListener(async(args, state) => {
               this.playAthan(args.athan_dropdown, athanTypes[args.athan_dropdown])
-              .then((value)=>{ return value;})
+              .then((value)=>{
+                  console.log(value); 
+                  return value;})
               .catch((err)=> {
                   console.log(err);
                   return Promise.resolve(false);
