@@ -16,14 +16,8 @@ const events = __importStar(require("./events"));
 const Homey = require("homey");
 const util_1 = require("util");
 const to = require('await-to-js').default;
-const athanTypes = { athan_short: "assets/prayers/prayer_partial.mp3", athan_full: "assets/prayers/prayer_full.mp3" };
+const athanTypes = { athan_short: "assets/prayers/prayer_short.mp3", athan_full: "assets/prayers/prayer_full.mp3" };
 class PrayersAppManager {
-    get homeyPrayersTriggerAll() {
-        return this._homeyPrayersTriggerAll;
-    }
-    set homeyPrayersTriggerAll(value) {
-        this._homeyPrayersTriggerAll = value;
-    }
     get prayerEventProvider() {
         return this._prayerEventProvider;
     }
@@ -54,6 +48,7 @@ class PrayersAppManager {
             exports.appmanager._prayerManager = await prayerlib.PrayerTimeBuilder
                 .createPrayerTimeBuilder(null, exports.appmanager._prayerConfig)
                 .setPrayerMethod(prayerlib.Methods.Mecca)
+                .setPrayerPeriod(prayerlib.DateUtil.getNowDate(), prayerlib.DateUtil.addDay(1, prayerlib.DateUtil.getNowDate()))
                 .setLocationByCoordinates(Homey.ManagerGeolocation.getLatitude(), Homey.ManagerGeolocation.getLongitude())
                 .createPrayerTimeManager();
             exports.appmanager.initPrayersSchedules();
@@ -64,6 +59,7 @@ class PrayersAppManager {
             console.log(err);
         }
     }
+    // initallize prayer scheduling and refresh events providers and listeners
     initPrayersSchedules() {
         this._prayerEventProvider = new events.PrayersEventProvider(this._prayerManager);
         this._prayerEventListener = new events.PrayersEventListener(this);
@@ -73,24 +69,30 @@ class PrayersAppManager {
         this._prayersRefreshEventListener = new events.PrayerRefreshEventListener(this);
         this._prayersRefreshEventProvider.registerListener(this._prayersRefreshEventListener);
     }
-    // public reschedulePrayers() {
-    //     if (!isNullOrUndefined(this._prayerEventProvider)) {
-    //         this._prayerEventProvider.stopPrayerSchedule();
-    //         this._prayerEventProvider.startPrayerSchedule();
-    //     }
-    // }
     //schedule refresh of prayers schedule based on date 
     scheduleRefresh(date) {
         this._prayersRefreshEventProvider.startPrayerRefreshSchedule(date);
     }
+    //initialize Homey Events
     initEvents() {
         this._homeyPrayersTriggerAll = new Homey.FlowCardTrigger('prayer_trigger_all');
+        this._homeyPrayersTriggerSpecific = new Homey.FlowCardTrigger('prayer_trigger_specific');
         this._homeyPrayersAthanAction = new Homey.FlowCardAction('athan_action');
         this._homeyPrayersTriggerAll.register();
         this._homeyPrayersAthanAction
             .register()
+            .registerRunListener(async (args, state) => {
+            this.playAthan(args.athan_dropdown, athanTypes[args.athan_dropdown])
+                .then(() => { return Promise.resolve(true); })
+                .catch((err) => {
+                console.log(err);
+                return Promise.resolve(false);
+            });
+        });
+        this._homeyPrayersTriggerSpecific
+            .register()
             .registerRunListener((args, state) => {
-            return this.playAthan(args.athan_dropdown, athanTypes[args.athan_dropdown]);
+            return (args.athan_dropdown === state.prayer_name);
         });
     }
     //play athan based on trigger
@@ -105,10 +107,23 @@ class PrayersAppManager {
         else
             return Promise.resolve(true);
     }
+    //trigger homey event based on prayer scheduling event.
     triggerEvent(prayerName, prayerTime) {
-        this._homeyPrayersTriggerAll.trigger({ prayer_name: prayerName, prayer_time: prayerTime.toDateString() }, null)
-            .then(() => console.log('event run'))
-            .catch((err) => this.prayerEventProvider.stopPrayerSchedule());
+        let timeZone = this._prayerManager.getPrayerTimeZone().timeZoneId;
+        let prayerTimeZone = prayerlib.DateUtil.getDateByTimeZone(prayerTime, timeZone);
+        this._homeyPrayersTriggerAll
+            .trigger({ prayer_name: prayerName, prayer_time: prayerTimeZone }, null)
+            .then(() => console.log('event all run'))
+            .catch((err) => {
+            this.prayerEventProvider.stopPrayerSchedule();
+            console.log(err);
+        });
+        this._homeyPrayersTriggerSpecific.trigger({ prayer_name: prayerName, prayer_time: prayerTimeZone }, null)
+            .then(() => console.log('event specific run'))
+            .catch((err) => {
+            this.prayerEventProvider.stopPrayerSchedule();
+            console.log(err);
+        });
     }
     //refresh prayer manager in case we reach the end of the array.
     refreshPrayerManager() {
