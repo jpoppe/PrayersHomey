@@ -57,7 +57,6 @@ export class PrayersAppManager {
     // private  _prayerEvents:prayerlib.
     static async initApp(): Promise<void> {
         try {
-
             appmanager._prayerConfig = await new prayerlib.Configurator().getPrayerConfig();
             appmanager._prayerManager = await prayerlib.PrayerTimeBuilder
                 .createPrayerTimeBuilder(null, appmanager._prayerConfig)
@@ -66,19 +65,7 @@ export class PrayersAppManager {
                 .createPrayerTimeManager();
             appmanager.initPrayersSchedules();
             appmanager.initEvents();
-            //  appmanager.initAthan();
             console.log(appmanager._prayerManager.getUpcomingPrayer());
-
-            // setTimeout(() => {
-            //     appmanager.homeyPrayersTrigger.trigger({prayer_name:"Fajir",prayer_time:"Isha"},null)
-            //     .then((result:any)=>
-            //     {
-            //         console.log('triggered the event'+ " ");
-            //     }
-            //     )
-            //     .catch((err)=> console.log(err));
-
-            // }, 60000);
         }
         catch (err) {
             console.log(err);
@@ -101,7 +88,8 @@ export class PrayersAppManager {
         }
 
     }
-    public scheduleRefresh() {
+    public scheduleRefresh(date:Date) {
+        this._prayersRefreshEventProvider.startPrayerRefreshSchedule(date);
 
     }
     public initEvents(): void {
@@ -132,16 +120,20 @@ export class PrayersAppManager {
             .then((result: any) => console.log('audio played'))
             .catch((err) => console.log(err));
     }
-
-    refreshPrayerManager(): void {
+    //refresh prayer manager in case we reach the end of the array.
+    public refreshPrayerManager(): void {
 
         let startDate: Date = prayerlib.DateUtil.getNowDate();
         let endDate: Date = prayerlib.DateUtil.addMonth(1, startDate);
         this.prayerManager.updatePrayersDate(startDate, endDate)
-            .then((value) => this.prayerEventProvider.startPrayerSchedule(this.prayerManager))
+            .then((value) =>{ this.prayerEventProvider.startPrayerSchedule(value)
+           // this._prayerManager = value;
+            })
+            //retry every date until the prayer refresh task is done.
             .catch((err) => {
                 console.log(err);
-                this.scheduleRefresh();
+                let date:Date = prayerlib.DateUtil.addDay(1,startDate);
+                this.scheduleRefresh(date);
 
             });
     }

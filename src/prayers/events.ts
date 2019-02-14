@@ -91,37 +91,23 @@ export class PrayersRefreshEventProvider extends prayerlib.EventProvider<prayerl
     public notifyObservers(eventType: prayerlib.EventsType, prayersTime: prayerlib.IPrayerManager, error?: Error): void {
         super.notifyObservers(eventType, prayersTime, error);
     }
-    public startPrayerSchedule(date: Date): void {
+    public startPrayerRefreshSchedule(date: Date): void {
         if (isNullOrUndefined(this._refreshPrayersEvent) || !this._refreshPrayersEvent.start) {
             this.runNextPrayerSchedule(date);
         }
     }
-    public stopPrayerSchedule(): void {
+    public stopPrayerRefreshSchedule(): void {
         if (this._refreshPrayersEvent.running)
             this._refreshPrayersEvent.stop();
     }
     private runNextPrayerSchedule(date: Date): void {
         this._refreshPrayersEvent = new cron.CronJob(date, async () => {
-            this.scheduleRefresh().then().catch((err) => { return console.log(err) })
+            this.notifyObservers(prayerlib.EventsType.OnCompleted,this._prayerManager);
         },
-            null, true);
-        // this._refreshPrayersEvent.addCallback(() => { setTimeout(() => this.runNextPrayerSchedule(), 3000); });
+            null, true);         
     }
-    private async scheduleRefresh(startDate: Date, endDate: Date): Promise<void> {
-        // let startDate:Date = this._prayerManager.getPrayerStartPeriod();
-        // let endDate:Date = this._prayerManager.getPrayerEndPeriond();
-        // startDate = DateUtil.getStartOfDay(endDate);
-        // endDate = prayerlib.DateUtil.addMonth(1,endDate);
-        try {
-            this._prayerManager = await this._prayerManager.updatePrayersDate(startDate, endDate);
-            this.notifyObservers(this._prayerManager);
-        }
-        catch (err) {
-            this.notifyObservers(null, err);
-        }
-    }
-}
 
+}
 export class PrayerRefreshEventListener implements prayerlib.IObserver<prayerlib.IPrayerManager>
 {
     private _prayerAppManager: manager.PrayersAppManager
@@ -129,13 +115,11 @@ export class PrayerRefreshEventListener implements prayerlib.IObserver<prayerlib
         this._prayerAppManager = prayerAppManager;
     }
     onCompleted(): void {
+        this._prayerAppManager.refreshPrayerManager();
     }
     onError(error: Error): void {
         console.log(error);
     }
     onNext(value: prayerlib.IPrayerManager): void {
-        this._prayerAppManager.prayerManager = value;
-        this._prayerAppManager.reschedulePrayers();
     }
 }
-prayerlib.DateUtil.addDay(-1, this._prayerManager.getPrayerEndPeriond())

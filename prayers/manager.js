@@ -24,6 +24,12 @@ class PrayersAppManager {
     set homeyPrayersTrigger(value) {
         this._homeyPrayersTrigger = value;
     }
+    get prayerEventProvider() {
+        return this._prayerEventProvider;
+    }
+    set prayerEventProvider(value) {
+        this._prayerEventProvider = value;
+    }
     static get prayerAppManger() {
         if (!util_1.isNullOrUndefined(PrayersAppManager._prayerAppManger))
             return PrayersAppManager._prayerAppManger;
@@ -69,19 +75,20 @@ class PrayersAppManager {
         }
     }
     initPrayersSchedules() {
-        this._prayerEventProvider = new prayerlib.PrayersEventProvider(exports.appmanager._prayerManager);
-        this._prayerEventListener = new events.PrayersEventListener();
+        this._prayerEventProvider = new events.PrayersEventProvider(this._prayerManager);
+        this._prayerEventListener = new events.PrayersEventListener(this);
         this._prayerEventProvider.registerListener(this._prayerEventListener);
         this._prayerEventProvider.startPrayerSchedule();
+        this._prayersRefreshEventProvider = new events.PrayersRefreshEventProvider(this._prayerManager);
     }
     reschedulePrayers() {
         if (!util_1.isNullOrUndefined(this._prayerEventProvider)) {
             this._prayerEventProvider.stopPrayerSchedule();
-            this._prayerEventProvider = new prayerlib.PrayersEventProvider(exports.appmanager._prayerManager);
-            this._prayerEventListener = new events.PrayersEventListener();
-            this._prayerEventProvider.registerListener(this._prayerEventListener);
             this._prayerEventProvider.startPrayerSchedule();
         }
+    }
+    scheduleRefresh(date) {
+        this._prayersRefreshEventProvider.startPrayerRefreshSchedule(date);
     }
     initEvents() {
         this._homeyPrayersTrigger = new Homey.FlowCardTrigger('prayer_trigger_all');
@@ -108,6 +115,20 @@ class PrayersAppManager {
         Homey.ManagerAudio.playMp3('athan_short', 'assets/prayers/prayer.mp3')
             .then((result) => console.log('audio played'))
             .catch((err) => console.log(err));
+    }
+    refreshPrayerManager() {
+        let startDate = prayerlib.DateUtil.getNowDate();
+        let endDate = prayerlib.DateUtil.addMonth(1, startDate);
+        this.prayerManager.updatePrayersDate(startDate, endDate)
+            .then((value) => {
+            this.prayerEventProvider.startPrayerSchedule(value);
+            // this._prayerManager = value;
+        })
+            .catch((err) => {
+            console.log(err);
+            let date = prayerlib.DateUtil.addDay(1, startDate);
+            this.scheduleRefresh(date);
+        });
     }
 }
 exports.PrayersAppManager = PrayersAppManager;
