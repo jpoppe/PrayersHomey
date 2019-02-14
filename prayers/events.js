@@ -68,9 +68,7 @@ class PrayersEventListener {
         console.log(error);
     }
     onNext(value) {
-        this._prayerAppManager.homeyPrayersTrigger.trigger({ prayer_name: value.prayerName, prayer_time: value.prayerTime.toDateString() }, null)
-            .then(() => console.log('event run'))
-            .catch((err) => this._prayerAppManager.prayerEventProvider.stopPrayerSchedule());
+        this._prayerAppManager.triggerEvent(value.prayerName, value.prayerTime);
     }
 }
 exports.PrayersEventListener = PrayersEventListener;

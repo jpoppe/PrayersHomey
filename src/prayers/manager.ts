@@ -10,20 +10,20 @@ import { start } from 'repl';
 
 const to = require('await-to-js').default;
 
-const athanTypes: any = { athan_short: "assets/prayers/prayer.mp3" };
+const athanTypes: any = { athan_short: "assets/prayers/prayer_partial.mp3", athan_full:"assets/prayers/prayer_full.mp3"  };
 
 export class PrayersAppManager {
 
     private static _prayerAppManger: PrayersAppManager;
-    private _homeyPrayersTrigger: Homey.FlowCardTrigger<Homey.FlowCardTrigger<any>>;
+    private _homeyPrayersTriggerAll: Homey.FlowCardTrigger<Homey.FlowCardTrigger<any>>;
     private _homeyPrayersAthanAction: Homey.FlowCardAction<Homey.FlowCardAction<any>>;
     private _prayersRefreshEventProvider: events.PrayersRefreshEventProvider;
     private _prayersRefreshEventListener: events.PrayerRefreshEventListener;
-    public get homeyPrayersTrigger(): Homey.FlowCardTrigger<Homey.FlowCardTrigger<any>> {
-        return this._homeyPrayersTrigger;
+    public get homeyPrayersTriggerAll(): Homey.FlowCardTrigger<Homey.FlowCardTrigger<any>> {
+        return this._homeyPrayersTriggerAll;
     }
-    public set homeyPrayersTrigger(value: Homey.FlowCardTrigger<Homey.FlowCardTrigger<any>>) {
-        this._homeyPrayersTrigger = value;
+    public set homeyPrayersTriggerAll(value: Homey.FlowCardTrigger<Homey.FlowCardTrigger<any>>) {
+        this._homeyPrayersTriggerAll = value;
     }
     private _prayerEventProvider: events.PrayersEventProvider; ///= new event.PrayersEventProvider(prayerManager);
     public get prayerEventProvider(): events.PrayersEventProvider {
@@ -33,7 +33,6 @@ export class PrayersAppManager {
         this._prayerEventProvider = value;
     }
     private _prayerEventListener: events.PrayersEventListener;
-
 
     public static get prayerAppManger(): PrayersAppManager {
         if (!isNullOrUndefined(PrayersAppManager._prayerAppManger))
@@ -71,31 +70,27 @@ export class PrayersAppManager {
             console.log(err);
         }
     }
+    // initallize prayer scheduling and refresh events providers and listeners
     public initPrayersSchedules() {
         this._prayerEventProvider = new events.PrayersEventProvider(this._prayerManager);
         this._prayerEventListener = new events.PrayersEventListener(this);
         this._prayerEventProvider.registerListener(this._prayerEventListener);
         this._prayerEventProvider.startPrayerSchedule();
         this._prayersRefreshEventProvider = new events.PrayersRefreshEventProvider(this._prayerManager);
-
-
+        this._prayersRefreshEventListener = new events.PrayerRefreshEventListener(this);
+        this._prayersRefreshEventProvider.registerListener(this._prayersRefreshEventListener);
     }
-    public reschedulePrayers() {
-        if (!isNullOrUndefined(this._prayerEventProvider)) {
-            this._prayerEventProvider.stopPrayerSchedule();
 
-            this._prayerEventProvider.startPrayerSchedule();
-        }
-
-    }
+    //schedule refresh of prayers schedule based on date 
     public scheduleRefresh(date:Date) {
         this._prayersRefreshEventProvider.startPrayerRefreshSchedule(date);
-
     }
+
+    //initialize Homey Events
     public initEvents(): void {
-        this._homeyPrayersTrigger = new Homey.FlowCardTrigger('prayer_trigger_all');
+        this._homeyPrayersTriggerAll = new Homey.FlowCardTrigger('prayer_trigger_all');
         this._homeyPrayersAthanAction = new Homey.FlowCardAction('athan_action');
-        this._homeyPrayersTrigger.register();
+        this._homeyPrayersTriggerAll.register();
         this._homeyPrayersAthanAction
             .register()
             .registerRunListener((args, state) => {
@@ -103,6 +98,7 @@ export class PrayersAppManager {
             }
             )
     }
+    //play athan based on trigger
     public async playAthan(sampleId: string, fileName: string): Promise<boolean> {
         console.log(sampleId);
         let err: Error, result: any;
@@ -113,16 +109,16 @@ export class PrayersAppManager {
         }
         else
             return Promise.resolve(true);
-
     }
-    public initAthan(): void {
-        Homey.ManagerAudio.playMp3('athan_short', 'assets/prayers/prayer.mp3')
-            .then((result: any) => console.log('audio played'))
-            .catch((err) => console.log(err));
+    //trigger homey event based on prayer scheduling event.
+    public triggerEvent(prayerName:string, prayerTime:Date):void
+    {
+        this._homeyPrayersTriggerAll.trigger({ prayer_name: prayerName, prayer_time: prayerTime.toDateString() }, null)
+        .then(() => console.log('event run'))
+        .catch((err) => this.prayerEventProvider.stopPrayerSchedule());
     }
     //refresh prayer manager in case we reach the end of the array.
     public refreshPrayerManager(): void {
-
         let startDate: Date = prayerlib.DateUtil.getNowDate();
         let endDate: Date = prayerlib.DateUtil.addMonth(1, startDate);
         this.prayerManager.updatePrayersDate(startDate, endDate)
@@ -134,7 +130,6 @@ export class PrayersAppManager {
                 console.log(err);
                 let date:Date = prayerlib.DateUtil.addDay(1,startDate);
                 this.scheduleRefresh(date);
-
             });
     }
 }

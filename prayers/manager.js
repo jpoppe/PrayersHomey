@@ -16,13 +16,13 @@ const events = __importStar(require("./events"));
 const Homey = require("homey");
 const util_1 = require("util");
 const to = require('await-to-js').default;
-const athanTypes = { athan_short: "assets/prayers/prayer.mp3" };
+const athanTypes = { athan_short: "assets/prayers/prayer_partial.mp3", athan_full: "assets/prayers/prayer_full.mp3" };
 class PrayersAppManager {
-    get homeyPrayersTrigger() {
-        return this._homeyPrayersTrigger;
+    get homeyPrayersTriggerAll() {
+        return this._homeyPrayersTriggerAll;
     }
-    set homeyPrayersTrigger(value) {
-        this._homeyPrayersTrigger = value;
+    set homeyPrayersTriggerAll(value) {
+        this._homeyPrayersTriggerAll = value;
     }
     get prayerEventProvider() {
         return this._prayerEventProvider;
@@ -58,17 +58,7 @@ class PrayersAppManager {
                 .createPrayerTimeManager();
             exports.appmanager.initPrayersSchedules();
             exports.appmanager.initEvents();
-            //  appmanager.initAthan();
             console.log(exports.appmanager._prayerManager.getUpcomingPrayer());
-            // setTimeout(() => {
-            //     appmanager.homeyPrayersTrigger.trigger({prayer_name:"Fajir",prayer_time:"Isha"},null)
-            //     .then((result:any)=>
-            //     {
-            //         console.log('triggered the event'+ " ");
-            //     }
-            //     )
-            //     .catch((err)=> console.log(err));
-            // }, 60000);
         }
         catch (err) {
             console.log(err);
@@ -80,26 +70,30 @@ class PrayersAppManager {
         this._prayerEventProvider.registerListener(this._prayerEventListener);
         this._prayerEventProvider.startPrayerSchedule();
         this._prayersRefreshEventProvider = new events.PrayersRefreshEventProvider(this._prayerManager);
+        this._prayersRefreshEventListener = new events.PrayerRefreshEventListener(this);
+        this._prayersRefreshEventProvider.registerListener(this._prayersRefreshEventListener);
     }
-    reschedulePrayers() {
-        if (!util_1.isNullOrUndefined(this._prayerEventProvider)) {
-            this._prayerEventProvider.stopPrayerSchedule();
-            this._prayerEventProvider.startPrayerSchedule();
-        }
-    }
+    // public reschedulePrayers() {
+    //     if (!isNullOrUndefined(this._prayerEventProvider)) {
+    //         this._prayerEventProvider.stopPrayerSchedule();
+    //         this._prayerEventProvider.startPrayerSchedule();
+    //     }
+    // }
+    //schedule refresh of prayers schedule based on date 
     scheduleRefresh(date) {
         this._prayersRefreshEventProvider.startPrayerRefreshSchedule(date);
     }
     initEvents() {
-        this._homeyPrayersTrigger = new Homey.FlowCardTrigger('prayer_trigger_all');
+        this._homeyPrayersTriggerAll = new Homey.FlowCardTrigger('prayer_trigger_all');
         this._homeyPrayersAthanAction = new Homey.FlowCardAction('athan_action');
-        this._homeyPrayersTrigger.register();
+        this._homeyPrayersTriggerAll.register();
         this._homeyPrayersAthanAction
             .register()
             .registerRunListener((args, state) => {
             return this.playAthan(args.athan_dropdown, athanTypes[args.athan_dropdown]);
         });
     }
+    //play athan based on trigger
     async playAthan(sampleId, fileName) {
         console.log(sampleId);
         let err, result;
@@ -111,11 +105,12 @@ class PrayersAppManager {
         else
             return Promise.resolve(true);
     }
-    initAthan() {
-        Homey.ManagerAudio.playMp3('athan_short', 'assets/prayers/prayer.mp3')
-            .then((result) => console.log('audio played'))
-            .catch((err) => console.log(err));
+    triggerEvent(prayerName, prayerTime) {
+        this._homeyPrayersTriggerAll.trigger({ prayer_name: prayerName, prayer_time: prayerTime.toDateString() }, null)
+            .then(() => console.log('event run'))
+            .catch((err) => this.prayerEventProvider.stopPrayerSchedule());
     }
+    //refresh prayer manager in case we reach the end of the array.
     refreshPrayerManager() {
         let startDate = prayerlib.DateUtil.getNowDate();
         let endDate = prayerlib.DateUtil.addMonth(1, startDate);
@@ -124,6 +119,7 @@ class PrayersAppManager {
             this.prayerEventProvider.startPrayerSchedule(value);
             // this._prayerManager = value;
         })
+            //retry every date until the prayer refresh task is done.
             .catch((err) => {
             console.log(err);
             let date = prayerlib.DateUtil.addDay(1, startDate);
