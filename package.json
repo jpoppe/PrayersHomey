@@ -8,7 +8,7 @@
     "name": "Omar B."
   },
   "dependencies": {
-    "@dpanet/prayers-lib": "^1.0.32",
+    "@dpanet/prayers-lib": "^1.0.34",
     "athom-cli": "^2.1.69",
     "cron": "^1.6.0",
     "debug": "^4.1.1",
@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "@types/cron": "^1.6.0",
-    "@types/debug": "^4.1.0",
+    "@types/debug": "^4.1.1",
     "@types/dotenv": "^6.1.0",
     "@types/lowdb": "^1.0.6",
     "typescript": "^3.3.3"

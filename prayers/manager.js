@@ -9,6 +9,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv = require("dotenv");
 dotenv.config();
+const Debug = require("debug");
+const debug = Debug("1");
 const prayerlib = __importStar(require("@dpanet/prayers-lib"));
 const events = __importStar(require("./events"));
 const Homey = require("homey");
@@ -33,6 +35,12 @@ class PrayersAppManager {
     static set prayerAppManger(value) {
         PrayersAppManager._prayerAppManger = value;
     }
+    get prayerManager() {
+        return this._prayerManager;
+    }
+    set prayerManager(value) {
+        this._prayerManager = value;
+    }
     // private  _prayerEvents:prayerlib.
     static async initApp() {
         try {
@@ -46,13 +54,15 @@ class PrayersAppManager {
             exports.appmanager.initEvents();
             //  appmanager.initAthan();
             console.log(exports.appmanager._prayerManager.getUpcomingPrayer());
-            setTimeout(() => {
-                exports.appmanager.homeyPrayersTrigger.trigger({ prayer_name: "Fajir", prayer_time: "Isha" }, null)
-                    .then((result) => {
-                    console.log('triggered the event' + " ");
-                })
-                    .catch((err) => console.log(err));
-            }, 60000);
+            // setTimeout(() => {
+            //     appmanager.homeyPrayersTrigger.trigger({prayer_name:"Fajir",prayer_time:"Isha"},null)
+            //     .then((result:any)=>
+            //     {
+            //         console.log('triggered the event'+ " ");
+            //     }
+            //     )
+            //     .catch((err)=> console.log(err));
+            // }, 60000);
         }
         catch (err) {
             console.log(err);
@@ -63,6 +73,15 @@ class PrayersAppManager {
         this._prayerEventListener = new events.PrayersEventListener();
         this._prayerEventProvider.registerListener(this._prayerEventListener);
         this._prayerEventProvider.startPrayerSchedule();
+    }
+    reschedulePrayers() {
+        if (!util_1.isNullOrUndefined(this._prayerEventProvider)) {
+            this._prayerEventProvider.stopPrayerSchedule();
+            this._prayerEventProvider = new prayerlib.PrayersEventProvider(exports.appmanager._prayerManager);
+            this._prayerEventListener = new events.PrayersEventListener();
+            this._prayerEventProvider.registerListener(this._prayerEventListener);
+            this._prayerEventProvider.startPrayerSchedule();
+        }
     }
     initEvents() {
         this._homeyPrayersTrigger = new Homey.FlowCardTrigger('prayer_trigger_all');
