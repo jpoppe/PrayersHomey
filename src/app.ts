@@ -1,6 +1,3 @@
-import dotenv = require('dotenv');
-dotenv.config();
-
 import Homey = require('homey');
 import * as manager from './prayers/manager';
 

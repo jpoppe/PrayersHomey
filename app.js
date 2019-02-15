@@ -7,8 +7,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const dotenv = require("dotenv");
-dotenv.config();
 const Homey = require("homey");
 const manager = __importStar(require("./prayers/manager"));
 class PrayersApp extends Homey.App {
