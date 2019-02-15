@@ -83,7 +83,10 @@ class PrayersAppManager {
             .register()
             .registerRunListener(async (args, state) => {
             this.playAthan(args.athan_dropdown, athanTypes[args.athan_dropdown])
-                .then(() => { return Promise.resolve(true); })
+                .then((value) => {
+                console.log(value);
+                return value;
+            })
                 .catch((err) => {
                 console.log(err);
                 return Promise.resolve(false);
@@ -99,13 +102,16 @@ class PrayersAppManager {
     async playAthan(sampleId, fileName) {
         console.log(sampleId);
         let err, result;
-        [err, result] = await to(Homey.ManagerAudio.playMp3(sampleId, fileName));
-        if (!util_1.isNullOrUndefined(err)) {
+        Homey.ManagerAudio.playMp3(sampleId, fileName)
+            .then(() => {
             console.log(err);
             return Promise.resolve(false);
-        }
-        else
+        })
+            .catch((err) => {
+            console.log(err);
             return Promise.resolve(true);
+        });
+        return Promise.resolve(true);
     }
     //trigger homey event based on prayer scheduling event.
     triggerEvent(prayerName, prayerTime) {
