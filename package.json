@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "@dpanet/prayers-lib": "^1.0.36",
-    "athom-cli": "^2.1.69",
     "cron": "^1.6.0",
     "debug": "^4.1.1",
     "dotenv": "^6.2.0",
